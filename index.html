@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#05060a" />
+    <meta
+      name="description"
+      content="Ankit Khandelwal — Senior Full Stack Architect. Interactive 3D portfolio: 20+ years of engineering, Goldman Sachs wealth platforms, AI/ML integration."
+    />
+    <title>Ankit Khandelwal · Holographic Portfolio</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!-- ===== Boot screen ===== -->
+    <div id="boot" class="boot">
+      <div class="boot__inner">
+        <div class="boot__logo">AK</div>
+        <div class="boot__bar"><span></span></div>
+        <div class="boot__lines">
+          <p data-line>&gt; mounting holographic shell …</p>
+          <p data-line>&gt; spinning up tech constellation …</p>
+          <p data-line>&gt; hydrating 20 years of signal …</p>
+          <p data-line>&gt; calibrating depth field …</p>
+          <p data-line>&gt; ready.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Three.js / WebGL backdrop ===== -->
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+    <!-- ===== CRT / scanline overlay ===== -->
+    <div class="crt" aria-hidden="true">
+      <div class="crt__scan"></div>
+      <div class="crt__vignette"></div>
+      <div class="crt__noise"></div>
+    </div>
+
+    <!-- ===== Cursor ring ===== -->
+    <div class="cursor" id="cursor" aria-hidden="true">
+      <div class="cursor__dot"></div>
+      <div class="cursor__ring"></div>
+    </div>
+
+    <!-- ===== HUD frame ===== -->
+    <div class="hud" aria-hidden="true">
+      <div class="hud__corner hud__corner--tl"></div>
+      <div class="hud__corner hud__corner--tr"></div>
+      <div class="hud__corner hud__corner--bl"></div>
+      <div class="hud__corner hud__corner--br"></div>
+      <div class="hud__meta hud__meta--tl">
+        <span class="dot"></span> SYS · ONLINE
+      </div>
+      <div class="hud__meta hud__meta--tr">
+        <span id="hud-coords">42.71° / -84.55°</span>
+      </div>
+      <div class="hud__meta hud__meta--bl">
+        <span id="hud-clock">00:00:00 UTC</span>
+      </div>
+      <div class="hud__meta hud__meta--br">
+        v1.0 · build//holo
+      </div>
+    </div>
+
+    <!-- ===== Top nav ===== -->
+    <nav class="nav">
+      <a class="nav__brand" href="#hero" data-magnet>
+        <span class="nav__brand-mark">▲K</span>
+        <span class="nav__brand-text">Ankit Khandelwal</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="#profile" data-magnet>Profile</a></li>
+        <li><a href="#stack" data-magnet>Stack</a></li>
+        <li><a href="#experience" data-magnet>Experience</a></li>
+        <li><a href="#projects" data-magnet>Projects</a></li>
+        <li><a href="#education" data-magnet>Education</a></li>
+        <li><a href="#contact" data-magnet>Contact</a></li>
+      </ul>
+      <a class="nav__cta" href="./Khandelwal_Ankit.docx" download data-magnet>
+        ↓ resume.docx
+      </a>
+    </nav>
+
+    <main id="stage" class="stage">
+      <!-- ===== HERO ===== -->
+      <section id="hero" class="hero" data-section="hero">
+        <div class="hero__grid"></div>
+
+        <div class="hero__title-wrap" data-tilt data-tilt-strength="20">
+          <p class="hero__eyebrow">
+            <span class="blink">▮</span> SENIOR FULL STACK ARCHITECT · DALLAS, TX
+          </p>
+          <h1 class="hero__title">
+            <span class="hero__title-line" data-text="Ankit">Ankit</span>
+            <span class="hero__title-line" data-text="Khandelwal">Khandelwal</span>
+          </h1>
+          <p class="hero__sub">
+            Twenty years of shipping enterprise-scale platforms.
+            Twelve at <em>Goldman Sachs</em>. Now bridging
+            <em>AI &amp; LLM workflows</em> with engineering rigour.
+          </p>
+
+          <div class="hero__terminal" id="terminal">
+            <div class="hero__terminal-bar">
+              <span></span><span></span><span></span>
+              <em>~/ankit · live shell</em>
+            </div>
+            <pre id="terminal-out" class="hero__terminal-out"></pre>
+          </div>
+
+          <div class="hero__ctas">
+            <a class="btn btn--primary" href="#profile" data-magnet>
+              <span>Enter Portfolio</span>
+              <i class="btn__arrow">→</i>
+            </a>
+            <a
+              class="btn btn--ghost"
+              href="https://linkedin.com/in/ankitkhandelwal101"
+              target="_blank"
+              rel="noopener"
+              data-magnet
+            >
+              <span>LinkedIn</span>
+              <i class="btn__arrow">↗</i>
+            </a>
+            <a
+              class="btn btn--ghost"
+              href="https://github.com/ankitcts"
+              target="_blank"
+              rel="noopener"
+              data-magnet
+            >
+              <span>GitHub</span>
+              <i class="btn__arrow">↗</i>
+            </a>
+          </div>
+
+          <ul class="hero__stats">
+            <li>
+              <strong data-count="20" data-suffix="+">0</strong>
+              <span>years engineering</span>
+            </li>
+            <li>
+              <strong data-count="12" data-suffix="+">0</strong>
+              <span>years at Goldman Sachs</span>
+            </li>
+            <li>
+              <strong data-count="35" data-suffix="+">0</strong>
+              <span>release cycles shipped</span>
+            </li>
+            <li>
+              <strong data-count="40" data-suffix="%">0</strong>
+              <span>dev-time reduction</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="hero__scroll">
+          <span>scroll</span>
+          <div class="hero__scroll-line"></div>
+        </div>
+      </section>
+
+      <!-- ===== PROFILE ===== -->
+      <section id="profile" class="profile" data-section="profile">
+        <header class="section-head">
+          <span class="section-head__num">01</span>
+          <h2 class="section-head__title">// Profile</h2>
+          <p class="section-head__sub">
+            The architect behind the components — at depth.
+          </p>
+        </header>
+
+        <div class="profile__grid">
+          <article class="profile__card glass" data-tilt data-tilt-strength="10">
+            <div class="profile__avatar">
+              <div class="profile__avatar-ring"></div>
+              <div class="profile__avatar-mono">AK</div>
+              <div class="profile__avatar-pulse"></div>
+            </div>
+
+            <h3 class="profile__name">Ankit Khandelwal</h3>
+            <p class="profile__role">
+              Senior Full Stack Architect · Engineering Lead
+            </p>
+
+            <ul class="profile__meta">
+              <li>📍 Dallas, TX</li>
+              <li>✉ ankitcts@gmail.com</li>
+              <li>☎ (682) 772-0096</li>
+              <li>↗ linkedin.com/in/ankitkhandelwal101</li>
+              <li>↗ github.com/ankitcts</li>
+            </ul>
+
+            <div class="profile__signals">
+              <span>FinTech</span>
+              <span>Wealth Mgmt</span>
+              <span>AI/ML</span>
+              <span>Architecture</span>
+              <span>Delivery</span>
+            </div>
+          </article>
+
+          <div class="profile__story">
+            <p class="profile__story-lead">
+              I&rsquo;m a <em>Senior Full Stack Architect</em> with
+              <strong>20+ years</strong> of building enterprise-scale digital
+              platforms — including <strong>12+ years</strong> delivering
+              complex wealth-management products at
+              <em>Goldman Sachs</em>.
+            </p>
+
+            <p class="profile__story-body">
+              My work sits at the seam where <em>design intent</em>,
+              <em>engineering rigour</em>, and <em>delivery governance</em>
+              meet. I architect end-to-end across React / Next.js, Node.js,
+              Python and GraphQL, lead distributed engineering teams across
+              time zones, own SOW &amp; milestone delivery, and ship
+              high-reliability systems across 20+ release cycles.
+            </p>
+
+            <p class="profile__story-body">
+              Today I&rsquo;m actively integrating <em>AI / ML and LLM
+              workflows</em> &mdash; LangChain, OpenAI, RAG, vector stores —
+              into production financial applications, bridging modern AI
+              capabilities with the engineering discipline enterprise demands.
+            </p>
+
+            <ul class="profile__highlights">
+              <li>
+                <span class="profile__highlights-key">Domain</span>
+                <span class="profile__highlights-val">
+                  Wealth Management · Asset Management · Alternative
+                  Investments · Onboarding · Funds Transfer · Authentication
+                </span>
+              </li>
+              <li>
+                <span class="profile__highlights-key">Operating mode</span>
+                <span class="profile__highlights-val">
+                  Architect → Lead → Deliver. Steering-committee
+                  conversations to component-library commits — same week.
+                </span>
+              </li>
+              <li>
+                <span class="profile__highlights-key">Mindset</span>
+                <span class="profile__highlights-val">
+                  Reliability over novelty. But novelty when it
+                  compounds — see: AI integration, agentic UI, RAG.
+                </span>
+              </li>
+              <li>
+                <span class="profile__highlights-key">Currently</span>
+                <span class="profile__highlights-val">
+                  PG Program in AI &amp; ML at <em>UT Austin · McCombs</em>
+                  — applying it to live financial product surfaces.
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== TECH STACK ===== -->
+      <section id="stack" class="stack" data-section="stack">
+        <header class="section-head">
+          <span class="section-head__num">02</span>
+          <h2 class="section-head__title">// Tech Constellation</h2>
+          <p class="section-head__sub">
+            Hover the orbits. The stack is alive.
+          </p>
+        </header>
+
+        <div class="stack__layout">
+          <div class="stack__orbit" id="orbit" aria-hidden="true">
+            <div class="stack__core">
+              <span>STACK</span>
+              <em id="orbit-active">—</em>
+            </div>
+          </div>
+
+          <div class="stack__panels" id="stack-panels">
+            <!-- injected by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== EXPERIENCE ===== -->
+      <section id="experience" class="exp" data-section="experience">
+        <header class="section-head">
+          <span class="section-head__num">03</span>
+          <h2 class="section-head__title">// Experience</h2>
+          <p class="section-head__sub">
+            A flight-path through twenty years of building.
+          </p>
+        </header>
+
+        <div class="exp__rail" id="exp-rail">
+          <!-- injected -->
+        </div>
+
+        <div class="exp__earlier">
+          <h3 class="exp__earlier-title">// Earlier Career</h3>
+          <ul class="exp__earlier-list" id="exp-earlier"></ul>
+        </div>
+      </section>
+
+      <!-- ===== PROJECTS ===== -->
+      <section id="projects" class="projects" data-section="projects">
+        <header class="section-head">
+          <span class="section-head__num">04</span>
+          <h2 class="section-head__title">// Independent Projects</h2>
+          <p class="section-head__sub">
+            Side architectures. Real production. Real URLs.
+          </p>
+        </header>
+
+        <div class="projects__grid" id="projects-grid">
+          <!-- injected -->
+        </div>
+      </section>
+
+      <!-- ===== EDUCATION + CERTS ===== -->
+      <section id="education" class="edu" data-section="education">
+        <header class="section-head">
+          <span class="section-head__num">05</span>
+          <h2 class="section-head__title">// Education &amp; Certifications</h2>
+          <p class="section-head__sub">
+            The compounding curriculum.
+          </p>
+        </header>
+
+        <div class="edu__split">
+          <div class="edu__col">
+            <h3>Education</h3>
+            <ul id="edu-list"></ul>
+          </div>
+          <div class="edu__col">
+            <h3>Certifications</h3>
+            <ul id="cert-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CONTACT ===== -->
+      <section id="contact" class="contact" data-section="contact">
+        <header class="section-head">
+          <span class="section-head__num">06</span>
+          <h2 class="section-head__title">// Open a channel</h2>
+          <p class="section-head__sub">
+            Architecture, AI integration, fractional leadership — let&rsquo;s
+            talk.
+          </p>
+        </header>
+
+        <div class="contact__panel glass" data-tilt data-tilt-strength="6">
+          <a class="contact__row" href="mailto:ankitcts@gmail.com" data-magnet>
+            <span class="contact__row-key">EMAIL</span>
+            <span class="contact__row-val">ankitcts@gmail.com</span>
+            <span class="contact__row-arrow">→</span>
+          </a>
+          <a class="contact__row" href="tel:+16827720096" data-magnet>
+            <span class="contact__row-key">CALL</span>
+            <span class="contact__row-val">(682) 772-0096</span>
+            <span class="contact__row-arrow">→</span>
+          </a>
+          <a
+            class="contact__row"
+            href="https://linkedin.com/in/ankitkhandelwal101"
+            target="_blank"
+            rel="noopener"
+            data-magnet
+          >
+            <span class="contact__row-key">LINKEDIN</span>
+            <span class="contact__row-val">/in/ankitkhandelwal101</span>
+            <span class="contact__row-arrow">↗</span>
+          </a>
+          <a
+            class="contact__row"
+            href="https://github.com/ankitcts"
+            target="_blank"
+            rel="noopener"
+            data-magnet
+          >
+            <span class="contact__row-key">GITHUB</span>
+            <span class="contact__row-val">/ankitcts</span>
+            <span class="contact__row-arrow">↗</span>
+          </a>
+          <a class="contact__row" href="./Khandelwal_Ankit.docx" download data-magnet>
+            <span class="contact__row-key">RESUME</span>
+            <span class="contact__row-val">Khandelwal_Ankit.docx</span>
+            <span class="contact__row-arrow">↓</span>
+          </a>
+        </div>
+
+        <footer class="footer">
+          <span>© <span id="year"></span> Ankit Khandelwal</span>
+          <span>Hand-built · zero-framework · WebGL backdrop</span>
+        </footer>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="./data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
