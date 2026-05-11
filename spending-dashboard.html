@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Spending Dashboard – Last 3 Months</title>
+<title>Spending Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root {
@@ -58,6 +58,11 @@
     margin-left: 8px; padding: 2px 8px; border-radius: 6px;
     background: var(--panel-2); border: 1px solid var(--border); color: var(--muted); cursor: pointer; font-size: 11px;
   }
+  .error {
+    background: #2a1416; border: 1px solid #7f1d1d; color: #fecaca;
+    padding: 14px 18px; border-radius: 10px; font-size: 13px;
+  }
+  .error code { background: rgba(0,0,0,.3); padding: 1px 6px; border-radius: 4px; }
   @media (max-width: 900px) {
     .grid { grid-template-columns: repeat(2, 1fr); }
     .panels { grid-template-columns: 1fr; }
@@ -65,245 +70,225 @@
 </style>
 </head>
 <body>
-  <h1>Spending Dashboard</h1>
-  <div class="sub">Derived from Gmail receipts · Feb 11, 2026 – May 11, 2026 · Click a category to drill down</div>
+  <h1 id="page-title">Spending Dashboard</h1>
+  <div class="sub" id="page-subtitle"></div>
 
-  <div class="toolbar" id="month-filter">
-    <button class="chip active" data-month="all">All months</button>
-    <button class="chip" data-month="2026-02">Feb 2026</button>
-    <button class="chip" data-month="2026-03">Mar 2026</button>
-    <button class="chip" data-month="2026-04">Apr 2026</button>
-    <button class="chip" data-month="2026-05">May 2026</button>
-  </div>
+  <div id="config-error" style="display:none;" class="error"></div>
 
-  <div class="grid">
-    <div class="kpi"><div class="label">Total spend</div><div class="value" id="kpi-total">$0</div></div>
-    <div class="kpi"><div class="label">Transactions</div><div class="value" id="kpi-count">0</div></div>
-    <div class="kpi"><div class="label">Top category</div><div class="value" id="kpi-topcat">—</div></div>
-    <div class="kpi"><div class="label">Avg per transaction</div><div class="value" id="kpi-avg">$0</div></div>
-  </div>
+  <div id="dashboard" style="display:none;">
+    <div class="toolbar" id="month-filter"></div>
 
-  <div class="panels">
-    <div class="panel">
-      <h3>Spend by category</h3>
-      <canvas id="cat-chart"></canvas>
+    <div class="grid">
+      <div class="kpi"><div class="label">Total spend</div><div class="value" id="kpi-total">$0</div></div>
+      <div class="kpi"><div class="label">Transactions</div><div class="value" id="kpi-count">0</div></div>
+      <div class="kpi"><div class="label">Top category</div><div class="value" id="kpi-topcat">—</div></div>
+      <div class="kpi"><div class="label">Avg per transaction</div><div class="value" id="kpi-avg">$0</div></div>
     </div>
-    <div class="panel">
-      <h3>Monthly trend</h3>
-      <canvas id="trend-chart"></canvas>
+
+    <div class="panels">
+      <div class="panel">
+        <h3>Spend by category</h3>
+        <canvas id="cat-chart"></canvas>
+      </div>
+      <div class="panel">
+        <h3>Monthly trend</h3>
+        <canvas id="trend-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top: 12px;">
+      <h3>Transactions <span id="drill-state"></span></h3>
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <table>
+        <thead><tr><th>Date</th><th>Merchant</th><th>Category</th><th class="amt">Amount</th></tr></thead>
+        <tbody id="tx-body"></tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      Data is loaded from <code>data/data.js</code>. See <a href="README.md" style="color:var(--accent);">README</a> for the schema and how to customize.
     </div>
   </div>
 
-  <div class="panel" style="margin-top: 12px;">
-    <h3>Transactions <span id="drill-state"></span></h3>
-    <div class="breadcrumb" id="breadcrumb"></div>
-    <table>
-      <thead><tr><th>Date</th><th>Merchant</th><th>Category</th><th class="amt">Amount</th></tr></thead>
-      <tbody id="tx-body"></tbody>
-    </table>
-  </div>
-
-  <div class="footer">
-    Data extracted from email receipts only. Excludes credit-card statement transactions, restaurants paid in-store without an email receipt, and Amazon/CVS line items where totals weren't in the email snippet. Numbers should be treated as a floor on actual spending.
-  </div>
-
+<script src="data/data.js"></script>
 <script>
-// Transactions extracted from Gmail receipts (Feb 11 – May 11, 2026).
-// Only entries with confirmed dollar amounts are included.
-const TX = [
-  // May 2026
-  { date: "2026-05-10", merchant: "Oklahoma Tourism (park entry)", category: "Recreation", amount: 0, note: "4 reservations, fee not in snippet" },
-  { date: "2026-05-08", merchant: "OneGold (buy order 6982016)", category: "Investments", amount: 46.67 },
-  { date: "2026-05-08", merchant: "OneGold (buy order 6982022)", category: "Investments", amount: 48.38 },
-  { date: "2026-05-08", merchant: "OneGold (buy order 6982019)", category: "Investments", amount: 49.68 },
-  { date: "2026-05-06", merchant: "Apple iCloud+ 200GB", category: "Subscriptions", amount: 2.99 },
-  { date: "2026-05-06", merchant: "Anthropic – Max plan 20x", category: "Subscriptions", amount: 192.91 },
-  { date: "2026-05-06", merchant: "Netlify (1000 credits)", category: "Subscriptions", amount: 9.59 },
-  { date: "2026-05-05", merchant: "BSW Health pre-payment", category: "Healthcare", amount: 29.84 },
-  { date: "2026-05-03", merchant: "Pearson VUE (certification exam)", category: "Education", amount: 0, note: "amount not in snippet" },
-  { date: "2026-05-01", merchant: "UWM mortgage (autopay)", category: "Mortgage", amount: 3920.58, note: "loan #...9563, confirmed in payment-applied email" },
-
-  // April 2026
-  { date: "2026-04-30", merchant: "CVS Pharmacy online order", category: "Personal Care", amount: 0, note: "amount not in snippet" },
-  { date: "2026-04-29", merchant: "Anthropic – one-time credit", category: "Subscriptions", amount: 5.33 },
-  { date: "2026-04-25", merchant: "Namecheap (domain)", category: "Subscriptions", amount: 11.48 },
-  { date: "2026-04-25", merchant: "British Swim School (kids)", category: "Family", amount: 0, note: "registration, fee not in snippet" },
-  { date: "2026-04-22", merchant: "BSW Surgicare – DFW Baylor", category: "Healthcare", amount: 568.00, note: "balance remaining: $1,136" },
-  { date: "2026-04-22", merchant: "DFW Airport NTTA Parking", category: "Travel", amount: 0, note: "amount not in snippet" },
-  { date: "2026-04-20", merchant: "Agoda – Bhiwadi hotel", category: "Travel", amount: 0, note: "refunded — unacceptable condition" },
-  { date: "2026-04-14", merchant: "Audi Financial – auto loan", category: "Auto", amount: 0, note: "monthly payment, amount not in snippet" },
-  { date: "2026-04-14", merchant: "Namecheap (domain)", category: "Subscriptions", amount: 0, note: "order #199796615, amount not in snippet" },
-  { date: "2026-04-12", merchant: "Amazon refund (Kristin Paradise)", category: "Refunds", amount: -8.54 },
-  { date: "2026-04-09", merchant: "TXU Electric – bill payment", category: "Utilities", amount: 0, note: "amount not in snippet" },
-  { date: "2026-04-08", merchant: "Anthropic – one-time credit", category: "Subscriptions", amount: 5.33 },
-  { date: "2026-04-07", merchant: "BSW Health pre-payment", category: "Healthcare", amount: 149.19 },
-  { date: "2026-04-01", merchant: "UWM mortgage (autopay)", category: "Mortgage", amount: 3920.58, note: "loan #...9563, inferred from autopay; Document Center notice on 04/02" },
-
-  // March 2026
-  { date: "2026-03-29", merchant: "ShreeVimals (Square POS)", category: "Dining", amount: 5.41 },
-  { date: "2026-03-26", merchant: "TJ Maxx & HomeGoods – Las Colinas", category: "Shopping", amount: 0, note: "e-receipt, amount not in snippet" },
-  { date: "2026-03-26", merchant: "TXU Electric – bill ready", category: "Utilities", amount: 0, note: "statement, paid later" },
-  { date: "2026-03-25", merchant: "Amazon (Easter Gifts + 1 item)", category: "Shopping", amount: 0, note: "amount not in snippet" },
-  { date: "2026-03-01", merchant: "UWM mortgage (autopay)", category: "Mortgage", amount: 3920.58, note: "loan #...9563, confirmed in autopay processing email" },
-];
-
-const CATEGORY_COLORS = {
-  "Mortgage":       "#10b981",
-  "Healthcare":     "#f87171",
-  "Subscriptions":  "#6ea8fe",
-  "Investments":    "#facc15",
-  "Travel":         "#a78bfa",
-  "Auto":           "#fb923c",
-  "Utilities":      "#34d399",
-  "Shopping":       "#f472b6",
-  "Personal Care":  "#22d3ee",
-  "Family":         "#fbbf24",
-  "Recreation":     "#4ade80",
-  "Education":      "#818cf8",
-  "Dining":         "#fde68a",
-  "Refunds":        "#9ca3af",
-};
-
-const state = { month: "all", category: null };
-const fmt = n => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
-
-function getMonthKey(dateStr) { return dateStr.slice(0, 7); }
-function filteredByMonth() {
-  return state.month === "all" ? TX : TX.filter(t => getMonthKey(t.date) === state.month);
-}
-function filteredAll() {
-  let rows = filteredByMonth();
-  if (state.category) rows = rows.filter(t => t.category === state.category);
-  return rows;
-}
-
-function aggregateByCategory(rows) {
-  const map = {};
-  for (const t of rows) {
-    if (!map[t.category]) map[t.category] = 0;
-    map[t.category] += t.amount;
+(function () {
+  // ---- Config validation -------------------------------------------------
+  const errorBox = document.getElementById("config-error");
+  const dashboardEl = document.getElementById("dashboard");
+  function fail(msg) {
+    errorBox.innerHTML = msg;
+    errorBox.style.display = "block";
+    dashboardEl.style.display = "none";
+    throw new Error(msg.replace(/<[^>]+>/g, ""));
   }
-  // Only return categories with non-zero spend so the chart isn't cluttered with $0 buckets.
-  const entries = Object.entries(map).filter(([_, v]) => v !== 0);
-  entries.sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
-  return entries;
-}
-
-function aggregateByMonth(rows) {
-  const map = {};
-  for (const t of rows) {
-    const k = getMonthKey(t.date);
-    if (!map[k]) map[k] = 0;
-    map[k] += t.amount;
+  if (typeof window.TRANSACTIONS === "undefined") {
+    fail("No data loaded. Create <code>data/data.js</code> based on <code>data/data.example.js</code>. See README.");
   }
-  return ["2026-02", "2026-03", "2026-04", "2026-05"].map(k => [k, map[k] || 0]);
-}
+  if (!Array.isArray(window.TRANSACTIONS) || !window.TRANSACTIONS.length) {
+    fail("<code>window.TRANSACTIONS</code> is empty. Add at least one entry to <code>data/data.js</code>.");
+  }
+  const CFG = window.DASHBOARD_CONFIG || {};
+  const CATEGORY_COLORS = window.CATEGORIES || {};
+  const TX = window.TRANSACTIONS;
+  const CURRENCY = CFG.currency || "USD";
+  const DEFAULT_COLOR = "#6ea8fe";
 
-let catChart, trendChart;
+  // ---- Title / subtitle / months ----------------------------------------
+  document.title = CFG.title || "Spending Dashboard";
+  document.getElementById("page-title").textContent = CFG.title || "Spending Dashboard";
+  const subBits = [];
+  if (CFG.subtitle) subBits.push(CFG.subtitle);
+  if (CFG.windowLabel) subBits.unshift(CFG.windowLabel);
+  document.getElementById("page-subtitle").textContent = subBits.join(" · ");
 
-function renderKPIs() {
-  const rows = filteredByMonth();
-  const total = rows.reduce((s, t) => s + t.amount, 0);
-  document.getElementById("kpi-total").textContent = fmt(total);
-  document.getElementById("kpi-count").textContent = rows.length;
-  const agg = aggregateByCategory(rows);
-  document.getElementById("kpi-topcat").textContent = agg[0] ? `${agg[0][0]} (${fmt(agg[0][1])})` : "—";
-  const counted = rows.filter(t => t.amount !== 0);
-  document.getElementById("kpi-avg").textContent = counted.length ? fmt(rows.reduce((s,t)=>s+t.amount,0)/counted.length) : "$0";
-}
+  const monthsFromData = Array.from(new Set(TX.map(t => t.date.slice(0, 7)))).sort();
+  const MONTHS = (CFG.months && CFG.months.length) ? CFG.months : monthsFromData;
 
-function renderCategoryChart() {
-  const rows = filteredByMonth();
-  const agg = aggregateByCategory(rows);
-  const labels = agg.map(([k]) => k);
-  const data = agg.map(([_, v]) => Math.abs(v));
-  const colors = labels.map(l => CATEGORY_COLORS[l] || "#6ea8fe");
-  const ctx = document.getElementById("cat-chart");
-  if (catChart) catChart.destroy();
-  catChart = new Chart(ctx, {
-    type: "doughnut",
-    data: { labels, datasets: [{ data, backgroundColor: colors, borderColor: "#171a21", borderWidth: 2 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: "right", labels: { color: "#e7e9ee", font: { size: 12 } } },
-        tooltip: { callbacks: { label: c => `${c.label}: ${fmt(c.parsed)}` } },
+  // ---- Helpers ----------------------------------------------------------
+  const monthLabel = key => {
+    const [y, m] = key.split("-").map(Number);
+    return new Date(y, m - 1, 1).toLocaleString(undefined, { month: "short", year: "2-digit" });
+  };
+  const fmt = n => {
+    try {
+      return new Intl.NumberFormat(undefined, { style: "currency", currency: CURRENCY, maximumFractionDigits: 2 }).format(n);
+    } catch (_) {
+      return (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+    }
+  };
+  const colorFor = cat => CATEGORY_COLORS[cat] || DEFAULT_COLOR;
+
+  // ---- Render month chips -----------------------------------------------
+  const filterEl = document.getElementById("month-filter");
+  filterEl.innerHTML = `<button class="chip active" data-month="all">All months</button>` +
+    MONTHS.map(m => `<button class="chip" data-month="${m}">${monthLabel(m)}</button>`).join("");
+
+  const state = { month: "all", category: null };
+
+  function filteredByMonth() {
+    return state.month === "all" ? TX : TX.filter(t => t.date.slice(0, 7) === state.month);
+  }
+  function filteredAll() {
+    let rows = filteredByMonth();
+    if (state.category) rows = rows.filter(t => t.category === state.category);
+    return rows;
+  }
+  function aggregateByCategory(rows) {
+    const map = {};
+    for (const t of rows) map[t.category] = (map[t.category] || 0) + t.amount;
+    return Object.entries(map).filter(([_, v]) => v !== 0).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+  }
+  function aggregateByMonth(rows) {
+    const map = {};
+    for (const t of rows) {
+      const k = t.date.slice(0, 7);
+      map[k] = (map[k] || 0) + t.amount;
+    }
+    return MONTHS.map(k => [k, map[k] || 0]);
+  }
+
+  let catChart, trendChart;
+
+  function renderKPIs() {
+    const rows = filteredByMonth();
+    const total = rows.reduce((s, t) => s + t.amount, 0);
+    document.getElementById("kpi-total").textContent = fmt(total);
+    document.getElementById("kpi-count").textContent = rows.length;
+    const agg = aggregateByCategory(rows);
+    document.getElementById("kpi-topcat").textContent = agg[0] ? `${agg[0][0]} (${fmt(agg[0][1])})` : "—";
+    const counted = rows.filter(t => t.amount !== 0);
+    document.getElementById("kpi-avg").textContent = counted.length ? fmt(total / counted.length) : fmt(0);
+  }
+
+  function renderCategoryChart() {
+    const agg = aggregateByCategory(filteredByMonth());
+    const labels = agg.map(([k]) => k);
+    const data = agg.map(([_, v]) => Math.abs(v));
+    const colors = labels.map(colorFor);
+    const ctx = document.getElementById("cat-chart");
+    if (catChart) catChart.destroy();
+    catChart = new Chart(ctx, {
+      type: "doughnut",
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderColor: "#171a21", borderWidth: 2 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "right", labels: { color: "#e7e9ee", font: { size: 12 } } },
+          tooltip: { callbacks: { label: c => `${c.label}: ${fmt(c.parsed)}` } },
+        },
+        onClick: (_, els) => {
+          if (!els.length) return;
+          const cat = labels[els[0].index];
+          state.category = state.category === cat ? null : cat;
+          renderTable();
+          renderTrendChart();
+        },
       },
-      onClick: (_, els) => {
-        if (!els.length) return;
-        const cat = labels[els[0].index];
-        state.category = state.category === cat ? null : cat;
-        renderTable();
+    });
+  }
+
+  function renderTrendChart() {
+    const rows = state.category ? TX.filter(t => t.category === state.category) : TX;
+    const agg = aggregateByMonth(rows);
+    const labels = agg.map(([k]) => monthLabel(k));
+    const data = agg.map(([_, v]) => v);
+    const ctx = document.getElementById("trend-chart");
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(ctx, {
+      type: "bar",
+      data: { labels, datasets: [{ label: "Spend", data, backgroundColor: "#6ea8fe", borderRadius: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.parsed.y) } } },
+        scales: {
+          x: { ticks: { color: "#9aa3b2" }, grid: { display: false } },
+          y: { ticks: { color: "#9aa3b2", callback: v => fmt(v) }, grid: { color: "#2a2f3a" } },
+        },
       },
-    },
+    });
+  }
+
+  function renderTable() {
+    const rows = filteredAll().slice().sort((a, b) => b.date.localeCompare(a.date));
+    const tbody = document.getElementById("tx-body");
+    document.getElementById("drill-state").textContent = state.category ? `· filtered: ${state.category}` : "";
+    document.getElementById("breadcrumb").innerHTML = state.category
+      ? `Drill: <b>${state.category}</b> <button class="clear-btn" id="clear-drill">clear</button>`
+      : "";
+    const clearBtn = document.getElementById("clear-drill");
+    if (clearBtn) clearBtn.onclick = () => { state.category = null; renderTable(); renderTrendChart(); };
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="empty">No transactions for this filter.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(t => {
+      const amt = t.amount === 0 ? `<span class="pill">no amount</span>` : fmt(t.amount);
+      const noteHtml = t.note ? `<div class="pill" style="margin-top:4px;">${t.note}</div>` : "";
+      const color = colorFor(t.category);
+      return `<tr>
+        <td>${t.date}</td>
+        <td>${t.merchant}${noteHtml}</td>
+        <td><span class="pill" style="border-color:${color};color:${color};">${t.category}</span></td>
+        <td class="amt">${amt}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function rerender() { renderKPIs(); renderCategoryChart(); renderTrendChart(); renderTable(); }
+
+  filterEl.addEventListener("click", e => {
+    if (e.target.tagName !== "BUTTON") return;
+    document.querySelectorAll("#month-filter .chip").forEach(c => c.classList.remove("active"));
+    e.target.classList.add("active");
+    state.month = e.target.dataset.month;
+    state.category = null;
+    rerender();
   });
-}
 
-function renderTrendChart() {
-  const rows = state.category ? TX.filter(t => t.category === state.category) : TX;
-  const agg = aggregateByMonth(rows);
-  const labels = agg.map(([k]) => ({ "2026-02": "Feb", "2026-03": "Mar", "2026-04": "Apr", "2026-05": "May" }[k]));
-  const data = agg.map(([_, v]) => v);
-  const ctx = document.getElementById("trend-chart");
-  if (trendChart) trendChart.destroy();
-  trendChart = new Chart(ctx, {
-    type: "bar",
-    data: { labels, datasets: [{ label: "Spend", data, backgroundColor: "#6ea8fe", borderRadius: 6 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.parsed.y) } } },
-      scales: {
-        x: { ticks: { color: "#9aa3b2" }, grid: { display: false } },
-        y: { ticks: { color: "#9aa3b2", callback: v => "$" + v }, grid: { color: "#2a2f3a" } },
-      },
-    },
-  });
-}
-
-function renderTable() {
-  const rows = filteredAll().slice().sort((a, b) => b.date.localeCompare(a.date));
-  const tbody = document.getElementById("tx-body");
-  const drill = document.getElementById("drill-state");
-  const bc = document.getElementById("breadcrumb");
-  drill.textContent = state.category ? `· filtered: ${state.category}` : "";
-  bc.innerHTML = state.category
-    ? `Drill: <b>${state.category}</b> <button class="clear-btn" onclick="state.category=null;renderTable();renderTrendChart();">clear</button>`
-    : "";
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="4" class="empty">No transactions for this filter.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = rows.map(t => {
-    const amt = t.amount === 0
-      ? `<span class="pill">no amount in email</span>`
-      : fmt(t.amount);
-    const noteHtml = t.note ? `<div class="pill" style="margin-top:4px;">${t.note}</div>` : "";
-    return `<tr>
-      <td>${t.date}</td>
-      <td>${t.merchant}${noteHtml}</td>
-      <td><span class="pill" style="border-color:${CATEGORY_COLORS[t.category]||"#2a2f3a"};color:${CATEGORY_COLORS[t.category]||"#9aa3b2"};">${t.category}</span></td>
-      <td class="amt">${amt}</td>
-    </tr>`;
-  }).join("");
-}
-
-function rerender() {
-  renderKPIs();
-  renderCategoryChart();
-  renderTrendChart();
-  renderTable();
-}
-
-document.getElementById("month-filter").addEventListener("click", e => {
-  if (e.target.tagName !== "BUTTON") return;
-  document.querySelectorAll("#month-filter .chip").forEach(c => c.classList.remove("active"));
-  e.target.classList.add("active");
-  state.month = e.target.dataset.month;
-  state.category = null;
+  dashboardEl.style.display = "";
   rerender();
-});
-
-rerender();
+})();
 </script>
 </body>
 </html>
