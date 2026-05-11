@@ -33,7 +33,7 @@ window.CATEGORIES = {
 
 window.TRANSACTIONS = [
   // May 2026
-  { date: "2026-05-10", merchant: "Oklahoma Tourism (park entry)", category: "Recreation", amount: 0, note: "8 reservations on 5/10; HTML-only emails, fee not extractable" },
+  { date: "2026-05-10", merchant: "Beavers Bend State Park (8 reservations)", category: "Recreation", amount: 80.00, note: "8 × $10/reservation (Use Fee $9.42 + County Tax $0.16 + State Tax $0.42)" },
   { date: "2026-05-08", merchant: "OneGold (buy order 6982016)", category: "Investments", amount: 46.67 },
   { date: "2026-05-08", merchant: "OneGold (buy order 6982022)", category: "Investments", amount: 48.38 },
   { date: "2026-05-08", merchant: "OneGold (buy order 6982019)", category: "Investments", amount: 49.68 },
