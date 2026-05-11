@@ -1,0 +1,17 @@
+# Copy to config.yaml and edit. Every key here is optional — CLI flags override.
+
+# Date range to scan (inclusive). Gmail interprets these as `after:` / `before:`.
+since: "2021-11-01"
+until: ""   # empty = today
+
+# Dashboard display
+title:        "Spending Dashboard"
+subtitle:     "Derived from Gmail receipts · Click a category to drill down"
+window_label: ""   # empty = "{since} – {until}"
+currency:     "USD"
+
+# Override or extend the default category palette (any CSS color).
+# Categories present in senders.json but missing here fall back to defaults.
+category_colors:
+  # Mortgage: "#10b981"
+  # Healthcare: "#f87171"

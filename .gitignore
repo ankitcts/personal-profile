@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Gmail OAuth credentials & tokens — NEVER commit these
+extractor/credentials.json
+extractor/token.json
+extractor/*.token
+
+# User config (copy from config.example.yaml)
+extractor/config.yaml
+
+# Extraction artifacts
+extractor/.cache/
+extractor/extraction-log.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
