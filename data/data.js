@@ -33,7 +33,7 @@ window.CATEGORIES = {
 
 window.TRANSACTIONS = [
   // May 2026
-  { date: "2026-05-10", merchant: "Oklahoma Tourism (park entry)", category: "Recreation", amount: 0, note: "8 reservations on 5/10; HTML-only emails, fee not extractable" },
+  { date: "2026-05-10", merchant: "Beavers Bend State Park (8 reservations)", category: "Recreation", amount: 80.00, note: "8 × $10/reservation (Use Fee $9.42 + County Tax $0.16 + State Tax $0.42)" },
   { date: "2026-05-08", merchant: "OneGold (buy order 6982016)", category: "Investments", amount: 46.67 },
   { date: "2026-05-08", merchant: "OneGold (buy order 6982022)", category: "Investments", amount: 48.38 },
   { date: "2026-05-08", merchant: "OneGold (buy order 6982019)", category: "Investments", amount: 49.68 },
@@ -41,7 +41,7 @@ window.TRANSACTIONS = [
   { date: "2026-05-06", merchant: "Anthropic – Max plan 20x", category: "Subscriptions", amount: 192.91 },
   { date: "2026-05-06", merchant: "Netlify (1000 credits)", category: "Subscriptions", amount: 9.59 },
   { date: "2026-05-05", merchant: "BSW Health pre-payment", category: "Healthcare", amount: 29.84 },
-  { date: "2026-05-03", merchant: "Pearson VUE (GH-900 cert exam)", category: "Education", amount: 0, note: "HTML-only email; list price $99" },
+  { date: "2026-05-03", merchant: "Pearson VUE – GH-300 GitHub Copilot exam", category: "Education", amount: 99.00, note: "Invoice 0079-6168-2664, paid via Amex" },
   { date: "2026-05-01", merchant: "UWM mortgage (autopay)", category: "Mortgage", amount: 3920.58, note: "loan #...9563, confirmed in payment-applied email" },
 
   // April 2026
