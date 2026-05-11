@@ -41,7 +41,7 @@ window.TRANSACTIONS = [
   { date: "2026-05-06", merchant: "Anthropic – Max plan 20x", category: "Subscriptions", amount: 192.91 },
   { date: "2026-05-06", merchant: "Netlify (1000 credits)", category: "Subscriptions", amount: 9.59 },
   { date: "2026-05-05", merchant: "BSW Health pre-payment", category: "Healthcare", amount: 29.84 },
-  { date: "2026-05-03", merchant: "Pearson VUE (GH-900 cert exam)", category: "Education", amount: 0, note: "HTML-only email; list price $99" },
+  { date: "2026-05-03", merchant: "Pearson VUE – GH-300 GitHub Copilot exam", category: "Education", amount: 99.00, note: "Invoice 0079-6168-2664, paid via Amex" },
   { date: "2026-05-01", merchant: "UWM mortgage (autopay)", category: "Mortgage", amount: 3920.58, note: "loan #...9563, confirmed in payment-applied email" },
 
   // April 2026
